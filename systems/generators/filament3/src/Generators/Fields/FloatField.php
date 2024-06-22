@@ -38,9 +38,9 @@ class FloatField extends BaseField
         return $options.parent::resolveTableOptions();
     }
 
-    public function getMigrationLine(): string
+    public function getMigrationLine(bool $change = false): string
     {
-        return (new MigrationLineGenerator())
+        return (new MigrationLineGenerator($change))
             ->setType('double')
             ->setKey($this->field->key)
             ->toString();

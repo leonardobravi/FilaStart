@@ -46,9 +46,11 @@ class CreateListFileJob implements ShouldQueue
         $this->crudData->panelFiles()->updateOrCreate([
             'path' => $listPath,
             'panel_id' => $this->panel->id,
+            'deployment_id' => $this->deployment->deployment_id,
         ], [
             'path' => $listPath,
             'panel_id' => $this->panel->id,
+            'deployment_id' => $this->deployment->deployment_id,
         ]);
 
         $this->deployment->addNewMessage('List file for '.$this->crudData->title.' CRUD generated successfully'.PHP_EOL);

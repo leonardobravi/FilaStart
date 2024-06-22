@@ -20,9 +20,9 @@ class TextField extends BaseField
         $this->tableKey = $this->field->key;
     }
 
-    public function getMigrationLine(): string
+    public function getMigrationLine(bool $change = false): string
     {
-        return (new MigrationLineGenerator())
+        return (new MigrationLineGenerator($change))
             ->setType('string')
             ->setKey($this->field->key)
             ->toString();

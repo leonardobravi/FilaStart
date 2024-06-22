@@ -44,9 +44,11 @@ class CreateModelJob implements ShouldQueue
         $this->crudData->panelFiles()->updateOrCreate([
             'path' => $modelPath,
             'panel_id' => $this->panel->id,
+            'deployment_id' => $this->deployment->deployment_id,
         ], [
             'path' => $modelPath,
             'panel_id' => $this->panel->id,
+            'deployment_id' => $this->deployment->deployment_id,
         ]);
 
         $this->deployment->addNewMessage('Model for '.$this->crudData->title.' CRUD generated successfully'.PHP_EOL);

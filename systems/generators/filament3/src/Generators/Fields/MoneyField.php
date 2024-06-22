@@ -29,9 +29,9 @@ class MoneyField extends BaseField
         return $options.parent::resolveTableOptions();
     }
 
-    public function getMigrationLine(): string
+    public function getMigrationLine(bool $change = false): string
     {
-        return (new MigrationLineGenerator())
+        return (new MigrationLineGenerator($change))
             ->setType('string') // TODO: This might be wrong.
             ->setKey($this->field->key)
             ->toString();

@@ -26,9 +26,9 @@ class PasswordField extends BaseField
         return $options.parent::resolveFormOptions();
     }
 
-    public function getMigrationLine(): string
+    public function getMigrationLine(bool $change = false): string
     {
-        return (new MigrationLineGenerator())
+        return (new MigrationLineGenerator($change))
             ->setType('string')
             ->setKey($this->field->key)
             ->toString();

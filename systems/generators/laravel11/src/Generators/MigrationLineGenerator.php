@@ -14,11 +14,18 @@ class MigrationLineGenerator
 
     private ?string $constrainedColumn = null;
 
+    private bool $change = false;
+
     private bool $nullable = false;
 
     private bool $index = false;
 
     private ?bool $default = null;
+
+    public function __construct(bool $change = false)
+    {
+        $this->change = $change;
+    }
 
     public function toString(): string
     {
@@ -46,6 +53,13 @@ class MigrationLineGenerator
         $this->constrained = true;
         $this->constrainedTable = $table;
         $this->constrainedColumn = $column;
+
+        return $this;
+    }
+
+    public function change(): self
+    {
+        $this->change = true;
 
         return $this;
     }
@@ -82,6 +96,7 @@ class MigrationLineGenerator
             $this->checkForNullable(),
             $this->checkForConstrained(),
             $this->checkForIndex(),
+            $this->checkForChange(),
         ];
     }
 
@@ -116,6 +131,15 @@ class MigrationLineGenerator
             }
 
             return $output.'()';
+        }
+
+        return '';
+    }
+
+    private function checkForChange(): string
+    {
+        if ($this->change) {
+            return '->change()';
         }
 
         return '';

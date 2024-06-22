@@ -46,9 +46,11 @@ class CreateResourceFileJob implements ShouldQueue
         $this->crudData->panelFiles()->updateOrCreate([
             'path' => $resourcePath,
             'panel_id' => $this->panel->id,
+            'deployment_id' => $this->deployment->deployment_id,
         ], [
             'path' => $resourcePath,
             'panel_id' => $this->panel->id,
+            'deployment_id' => $this->deployment->deployment_id,
         ]);
 
         $this->deployment->addNewMessage('Resource file for '.$this->crudData->title.' CRUD generated successfully'.PHP_EOL);

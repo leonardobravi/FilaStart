@@ -16,6 +16,7 @@ class PanelFile extends Model
         'crud_field_id',
         'path',
         'content',
+        'deployment_id',
     ];
 
     public function panel(): BelongsTo

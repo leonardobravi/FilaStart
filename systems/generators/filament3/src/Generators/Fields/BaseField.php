@@ -25,7 +25,7 @@ class BaseField
         $this->field = $field;
     }
 
-    public function getMigrationLine(): string
+    public function getMigrationLine(bool $change = false): string
     {
         throw new NotImplementedException('Method getMigrationLine() not implemented for '.static::class);
     }

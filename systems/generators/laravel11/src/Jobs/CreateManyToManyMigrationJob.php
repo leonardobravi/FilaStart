@@ -59,18 +59,20 @@ class CreateManyToManyMigrationJob implements ShouldQueue
             }
 
             $panelService = new PanelService($this->panel);
-            $migration = new MigrationGenerator($this->crudData);
+            $migration = new MigrationGenerator($this->crudData, $this->deployment);
 
-            $migrationName = $migration->getManyToManyName($this->panel->cruds()->max('menu_order') + 10, $this->crudData, $field->crudFieldOptions->crud);
+            $migrationName = $migration->getManyToManyName($field, $this->panel->cruds()->max('menu_order') + 10, $this->crudData, $field->crudFieldOptions->crud);
             $migrationPath = 'database/migrations/'.$migrationName.'.php';
             $panelService->writeFile($migrationPath, $migration->generateManyToMany($this->crudData, $field));
 
             $this->crudData->panelFiles()->updateOrCreate([
                 'path' => $migrationPath,
                 'panel_id' => $this->panel->id,
+                'deployment_id' => $this->deployment->deployment_id,
             ], [
                 'path' => $migrationPath,
                 'panel_id' => $this->panel->id,
+                'deployment_id' => $this->deployment->deployment_id,
             ]);
 
         }

@@ -46,9 +46,11 @@ class CreateEditFileJob implements ShouldQueue
         $this->crudData->panelFiles()->updateOrCreate([
             'path' => $editPath,
             'panel_id' => $this->panel->id,
+            'deployment_id' => $this->deployment->deployment_id,
         ], [
             'path' => $editPath,
             'panel_id' => $this->panel->id,
+            'deployment_id' => $this->deployment->deployment_id,
         ]);
 
         $this->deployment->addNewMessage('Edit file for '.$this->crudData->title.' CRUD generated successfully'.PHP_EOL);

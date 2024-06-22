@@ -40,11 +40,12 @@ class GeneratePanelCodeJob implements ShouldQueue
             'cruds',
         ]);
 
-        $service = new PanelService($this->panel);
-
-        foreach ($this->panel->panelFiles()->where('path', 'like', '%database/migrations%')->get() as $file) {
-            $service->deleteFile($file);
-        }
+        // Stop deleting old migrations
+//        $service = new PanelService($this->panel);
+//
+//        foreach ($this->panel->panelFiles()->where('path', 'like', '%database/migrations%')->get() as $file) {
+//            $service->deleteFile($file);
+//        }
 
         $panelService = new PanelService($this->panel);
 

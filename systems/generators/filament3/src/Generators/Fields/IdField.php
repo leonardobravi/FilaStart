@@ -18,9 +18,9 @@ class IdField extends BaseField
         return ''; // We don't want to have ID field on forms. We might change this
     }
 
-    public function getMigrationLine(): string
+    public function getMigrationLine(bool $change = false): string
     {
-        return (new MigrationLineGenerator())
+        return (new MigrationLineGenerator($change))
             ->setType('id')
             ->toString();
     }
