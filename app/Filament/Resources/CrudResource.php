@@ -60,16 +60,17 @@ class CrudResource extends Resource
                             })
                             ->toArray();
                     })
-                    ->getOptionLabelUsing(function (mixed $value): string {
-                        return collect(HeroIcons::cases())
-                            ->filter(fn (HeroIcons $enum) => stripos($enum->value, $value) !== false)
-                            ->map(function (HeroIcons $case) {
-                                return "<span class='flex items-center'>
-                                    ".svg($case->value, ['class' => 'h-5 w-5', 'style' => 'margin-right: 0.4rem;'])->toHtml().'
-                                    <span>'.svg($case->value)->name().'</span>
-                                </span>';
-                            });
-                    })
+                    // Using this label generate a graphical representation issue on selected option
+//                    ->getOptionLabelUsing(function (mixed $value): string {
+//                        return collect(HeroIcons::cases())
+//                            ->filter(fn (HeroIcons $enum) => stripos($enum->value, $value) !== false)
+//                            ->map(function (HeroIcons $case) {
+//                                return "<span class='flex items-center'>
+//                                    ".svg($case->value, ['class' => 'h-5 w-5', 'style' => 'margin-right: 0.4rem;'])->toHtml().'
+//                                    <span>'.svg($case->value)->name().'</span>
+//                                </span>';
+//                            });
+//                    })
                     ->getSearchResultsUsing(function (string $search): array {
                         return collect(HeroIcons::cases())
                             ->filter(fn (HeroIcons $enum) => stripos($enum->value, $search) !== false)

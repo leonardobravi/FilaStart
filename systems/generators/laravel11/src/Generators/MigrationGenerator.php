@@ -211,4 +211,15 @@ class MigrationGenerator
 
         return $name;
     }
+
+    /**
+     * Test if this CRUD has any changes that need to be saved in a migration
+     *
+     * @return bool
+     * @todo Improve the controls carried out in this method
+     */
+    public function hasChanges(): bool
+    {
+        return !empty($this->generateColumns());
+    }
 }

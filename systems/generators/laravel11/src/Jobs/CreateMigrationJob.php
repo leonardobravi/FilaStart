@@ -39,19 +39,22 @@ class CreateMigrationJob implements ShouldQueue
         $migration = new MigrationGenerator($this->crudData, $this->deployment);
         $migrationName = $migration->getName();
         $migrationPath = 'database/migrations/'.$migrationName.'.php';
-        // TODO Skip this migration if no changes have been made
-        $panelService->writeFile($migrationPath, $migration->generate());
+        if (!empty($migration->hasChanges())) {
+            $panelService->writeFile($migrationPath, $migration->generate());
 
-        $this->crudData->panelFiles()->updateOrCreate([
-            'path' => $migrationPath,
-            'panel_id' => $this->panel->id,
-            'deployment_id' => $this->deployment->deployment_id,
-        ], [
-            'path' => $migrationPath,
-            'panel_id' => $this->panel->id,
-            'deployment_id' => $this->deployment->deployment_id,
-        ]);
+            $this->crudData->panelFiles()->updateOrCreate([
+                'path' => $migrationPath,
+                'panel_id' => $this->panel->id,
+                'deployment_id' => $this->deployment->deployment_id,
+            ], [
+                'path' => $migrationPath,
+                'panel_id' => $this->panel->id,
+                'deployment_id' => $this->deployment->deployment_id,
+            ]);
 
-        $this->deployment->addNewMessage('Migration for '.$this->crudData->title.' CRUD generated successfully'.PHP_EOL);
+            $this->deployment->addNewMessage('Migration for '.$this->crudData->title.' CRUD generated successfully'.PHP_EOL);
+        } else {
+            $this->deployment->addNewMessage('Migration for '.$this->crudData->title.' CRUD skipped no changes found'.PHP_EOL);
+        }
     }
 }
