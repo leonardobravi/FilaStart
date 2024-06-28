@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Panel;
+use App\Models\PanelDeployment;
 use App\Models\PanelFile;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Storage;
@@ -19,14 +20,14 @@ class PanelService
         return storage_path(
             sprintf(
                 'app/panels/%s',
-                str($this->panel->id.' - '.$this->panel->name)->slug()
+                str($this->panel->id . ' - ' . $this->panel->name)->slug()
             )
         );
     }
 
     public function writeFile(string $path, string $contents): void
     {
-        $path = $this->getStoragePath().DIRECTORY_SEPARATOR.$path;
+        $path = $this->getStoragePath() . DIRECTORY_SEPARATOR . $path;
 
         $filesystem = app(Filesystem::class);
 
@@ -39,7 +40,7 @@ class PanelService
 
     public function deleteFile(PanelFile $file): void
     {
-        $path = $this->getStoragePath().DIRECTORY_SEPARATOR.$file->path;
+        $path = $this->getStoragePath() . DIRECTORY_SEPARATOR . $file->path;
 
         $filesystem = app(Filesystem::class);
 
@@ -48,9 +49,9 @@ class PanelService
         $filesystem->delete($path);
     }
 
-    public function zipFiles(): string
+    public function zipFiles(PanelDeployment $panelDeployment): string
     {
-        $zipPath = $this->getStoragePath().DIRECTORY_SEPARATOR.'panel.zip';
+        $zipPath = $this->getStoragePath() . DIRECTORY_SEPARATOR . 'panel.zip';
 
         $filesystem = app(Filesystem::class);
 
@@ -65,24 +66,24 @@ class PanelService
         $files = $this->panel->panelFiles;
 
         foreach ($files as $file) {
-            if (! $filesystem->exists($this->getStoragePath().DIRECTORY_SEPARATOR.$file->path)) {
+            if (!$filesystem->exists($this->getStoragePath() . DIRECTORY_SEPARATOR . $file->path)) {
                 continue;
             }
 
             $zip->addFile(
-                $this->getStoragePath().DIRECTORY_SEPARATOR.$file->path,
+                $this->getStoragePath() . DIRECTORY_SEPARATOR . $file->path,
                 $file->path,
             );
         }
 
         $zip->close();
 
-        $filesystem->move($zipPath, storage_path(sprintf('app/public/%s.zip',
-            str($this->panel->id.' - '.$this->panel->name)->slug()
-        )));
+        $finalFilename = sprintf('%s.zip',
+            str($this->panel->id . ' - ' . $this->panel->name . ' - ' . $panelDeployment->deployment_id)->slug()
+        );
 
-        return Storage::url(sprintf('%s.zip',
-            str($this->panel->id.' - '.$this->panel->name)->slug()
-        ));
+        $filesystem->move($zipPath, storage_path('app/public/' . $finalFilename));
+
+        return Storage::url($finalFilename);
     }
 }

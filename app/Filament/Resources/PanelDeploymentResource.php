@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\HeroIcons;
 use App\Jobs\Generator\GeneratePanelCodeJob;
+use App\Models\CrudField;
 use App\Models\Panel;
 use App\Models\PanelDeployment;
 use App\Services\PanelService;
@@ -60,6 +61,11 @@ class PanelDeploymentResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('download')
+                    ->icon(HeroIcons::O_ARROW_DOWN_TRAY->value)
+                    ->url(fn(PanelDeployment $record): ?string => $record->file_path)
+                    ->visible(fn(PanelDeployment $record): bool => !empty($record->file_path))
+                    ->openUrlInNewTab(),
                 Tables\Actions\Action::make('details')
                     ->icon(HeroIcons::O_EYE->value)
                     ->modalContent(fn(PanelDeployment $record): View => view('filament.modals.panel-deployment-details', ['panelDeployment' => $record]))
@@ -76,70 +82,69 @@ class PanelDeploymentResource extends Resource
 //                    ->modalIcon(fn(PanelDeployment $record): string => match ($record->status) {
 //                        'pending' => HeroIcons::O_CLOCK->value,
 //                        'failed' => HeroIcons::O_EXCLAMATION_CIRCLE->value,
-//                        'success' => HeroIcons::O_EXCLAMATION_CIRCLE->value,
-////                        'success' => HeroIcons::O_CHECK_CIRCLE->value,
+//                        'success' => HeroIcons::O_CHECK_CIRCLE->value,
 //                    })
                     ->modalCancelAction(false)
                     ->modalSubmitAction(false),
-                Tables\Actions\Action::make('download')
-                    ->icon(HeroIcons::O_ARROW_DOWN_TRAY->value)
-                    ->url(fn(PanelDeployment $record): string => $record->file_path)
-                    ->openUrlInNewTab(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
-            ->headerActions([
-                Tables\Actions\Action::make('Deploy Now')
-                    ->icon(HeroIcons::O_ROCKET_LAUNCH->value)
-                    ->action(function() {
-                        /** @var Panel $panel */
-                        $panel = Filament::getTenant();
-
-                        $newDeployment = $panel->panelDeployments()->create([
-                            'status' => 'pending',
-                            'deployment_id' => Uuid::uuid4(),
-                        ]);
-
-                        $newDeployment->addNewMessage('Generation started at ' . now()->toDateTimeString() . PHP_EOL);
-
-                        Bus::batch([
-                            new GeneratePanelCodeJob($panel->id, $newDeployment->id),
-                        ])
-                            ->name($newDeployment->deployment_id)
-                            ->catch(function () use ($newDeployment) {
-                                $newDeployment?->addNewMessage('Generation has failed...' . PHP_EOL);
-
-                                $newDeployment?->update([
-                                    'status' => 'failed',
-                                ]);
-                            })
-                            ->then(function () use ($panel, $newDeployment) {
-                                $service = new PanelService($panel);
-                                $filePath = $service->zipFiles();
-
-                                $newDeployment?->update([
-                                    'status' => 'success',
-                                    'file_path' => $filePath,
-                                ]);
-
-                                $newDeployment?->addNewMessage('Generation completed at ' . now()->toDateTimeString() . PHP_EOL);
-                            })
-                            ->dispatch();
-
-                        $newDeployment->fresh();
-
-                        // $this->dispatch('$refresh');
-
-                        Notification::make()
-                            ->title("Deployment completed successful")
-                            ->success()
-                            ->persistent()
-                            ->send();
-                    })
-            ])
+//            ->headerActions([
+//                Tables\Actions\Action::make('Deploy Now')
+//                    ->icon(HeroIcons::O_ROCKET_LAUNCH->value)
+//                    ->action(function () {
+//                        /** @var Panel $panel */
+//                        $panel = Filament::getTenant();
+//
+//                        $newDeployment = $panel->panelDeployments()->create([
+//                            'status' => 'pending',
+//                            'deployment_id' => Uuid::uuid4(),
+//                        ]);
+//
+//                        $newDeployment->addNewMessage('Generation started at ' . now()->toDateTimeString() . PHP_EOL);
+//
+//                        Bus::batch([
+//                            new GeneratePanelCodeJob($panel->id, $newDeployment->id),
+//                        ])
+//                            ->name($newDeployment->deployment_id)
+//                            ->catch(function () use ($newDeployment) {
+//                                $newDeployment?->addNewMessage('Generation has failed...' . PHP_EOL);
+//
+//                                $newDeployment?->update([
+//                                    'status' => 'failed',
+//                                ]);
+//                            })
+//                            ->then(function () use ($panel, $newDeployment) {
+//                                $service = new PanelService($panel);
+//                                $filePath = $service->zipFiles();
+//
+//                                $newDeployment?->update([
+//                                    'status' => 'success',
+//                                    'file_path' => $filePath,
+//                                ]);
+//
+//                                $newDeployment?->addNewMessage('Generation completed at ' . now()->toDateTimeString() . PHP_EOL);
+//                            })
+//                            ->dispatch();
+//
+//                        $newDeployment->fresh();
+//
+//                        // $this->dispatch('$refresh');
+//
+//                        Notification::make()
+//                            ->title("Deployment completed successful")
+//                            ->success()
+//                            ->persistent()
+//                            ->send();
+//                    })
+//                    ->disabled(function () {
+//                        return !empty(PanelDeployment::where('status', 'pending')->first()) ||
+//                            empty(CrudField::where('updated_at', '>=', PanelDeployment::max('created_at'))->first());
+//                })
+//            ])
             ->recordUrl(null);
     }
 
