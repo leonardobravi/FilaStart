@@ -20,8 +20,10 @@ class IdField extends BaseField
 
     public function getMigrationLine(bool $change = false): string
     {
-        return (new MigrationLineGenerator($change))
+        return (new MigrationLineGenerator())
             ->setType('id')
+            ->setChange($change)
+            ->setNullable($this->field->nullable)
             ->toString();
     }
 }

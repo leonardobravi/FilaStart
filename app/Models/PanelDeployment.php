@@ -9,13 +9,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property int $panel_id
- * @property Carbon $created_at
+ * @property null|Carbon $created_at
  */
 class PanelDeployment extends Model
 {
     use SoftDeletes;
 
+    /** @var null|PanelDeployment */
     private $prev;
+
+    /** @var null|PanelDeployment */
     private $next;
 
     protected $fillable = [
@@ -35,7 +38,7 @@ class PanelDeployment extends Model
     {
         $log = $this->fresh();
 
-        if (! $log) {
+        if (!$log) {
             return;
         }
 
@@ -54,7 +57,7 @@ class PanelDeployment extends Model
                 ->where('panel_id', '=', $this->panel_id)
                 ->where('created_at', '<', $this->created_at)
                 ->orderByDesc('created_at')->first();
-            if (is_object($this->prev) && !$this->prev instanceof PanelDeployment) {
+            if (!$this->prev instanceof PanelDeployment) {
                 $this->prev = null;
             }
         }

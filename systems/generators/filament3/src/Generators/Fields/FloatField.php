@@ -40,9 +40,11 @@ class FloatField extends BaseField
 
     public function getMigrationLine(bool $change = false): string
     {
-        return (new MigrationLineGenerator($change))
+        return (new MigrationLineGenerator())
             ->setType('double')
             ->setKey($this->field->key)
+            ->setChange($change)
+            ->setNullable($this->field->nullable)
             ->toString();
     }
 }

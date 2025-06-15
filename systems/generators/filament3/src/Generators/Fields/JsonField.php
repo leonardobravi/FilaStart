@@ -4,11 +4,11 @@ namespace Generators\Filament3\Generators\Fields;
 
 use Generators\Laravel11\Generators\MigrationLineGenerator;
 
-class ImageField extends BaseField
+class JsonField extends BaseField
 {
-    protected string $formComponentClass = 'FileUpload';
+    protected string $formComponentClass = 'KeyValue';
 
-    protected string $tableColumnClass = 'ImageColumn';
+    protected string $tableColumnClass = 'TextColumn';
 
     protected function resolveFormComponent(): void
     {
@@ -23,7 +23,7 @@ class ImageField extends BaseField
     public function getMigrationLine(bool $change = false): string
     {
         return (new MigrationLineGenerator())
-            ->setType('string')
+            ->setType('json')
             ->setKey($this->field->key)
             ->setChange($change)
             ->setNullable($this->field->nullable)

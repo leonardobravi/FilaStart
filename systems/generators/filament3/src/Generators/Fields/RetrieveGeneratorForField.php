@@ -18,12 +18,15 @@ class RetrieveGeneratorForField
             CrudFieldTypes::BELONGS_TO => new BelongsToField($field),
             CrudFieldTypes::IMAGE => new ImageField($field),
             CrudFieldTypes::TEXTAREA => new TextAreaField($field),
+            CrudFieldTypes::MARKDOWN => new MarkdownField($field),
             CrudFieldTypes::CHECKBOX => new CheckboxField($field),
+            CrudFieldTypes::INTEGER => new IntegerField($field),
             CrudFieldTypes::FLOAT => new FloatField($field),
             CrudFieldTypes::EMAIL => new EmailField($field),
             CrudFieldTypes::DATE => new DateField($field),
             CrudFieldTypes::MONEY => new MoneyField($field),
             CrudFieldTypes::FILE => new FileField($field),
+            CrudFieldTypes::JSON => new JsonField($field),
         };
     }
 }

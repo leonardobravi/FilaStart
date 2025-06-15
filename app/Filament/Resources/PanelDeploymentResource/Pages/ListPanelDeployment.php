@@ -72,8 +72,10 @@ class ListPanelDeployment extends ListRecords
                         ->send();
                 })
                 ->disabled(function () {
-                    return !empty(PanelDeployment::where('status', 'pending')->first()) ||
-                        empty(CrudField::where('updated_at', '>=', PanelDeployment::max('created_at'))->first());
+                    $maxDate = PanelDeployment::max('created_at');
+                    return
+                        !empty(PanelDeployment::where('status', 'pending')->first()) ||
+                        (!empty($maxDate) && empty(CrudField::where('updated_at', '>=', $maxDate)->first()));
                 })
         ];
     }

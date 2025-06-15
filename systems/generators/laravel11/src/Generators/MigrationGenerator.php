@@ -12,7 +12,7 @@ use Generators\Filament3\Generators\Fields\RetrieveGeneratorForField;
 class MigrationGenerator
 {
 
-    protected $isNewTable = true;
+    protected bool $isNewTable = true;
 
     public function __construct(public Crud $crud, public PanelDeployment $deployment)
     {
@@ -45,7 +45,7 @@ class MigrationGenerator
             throw new Exception('Field options crud is not loaded');
         }
 
-        $output = view('laravel11::migration', [
+        $output = view('laravel11::migrationCreate', [
             'isNewTable' => $this->isNewTable || $field->created_at > $this->deployment->prev()?->created_at,
             'uses' => $this->generateUses(),
             'tableName' => $this->orderManyToManyName($crud, $field->crudFieldOptions->crud),
@@ -71,6 +71,9 @@ class MigrationGenerator
         return "{$datePart}_{$typePart}_{$this->generateTableName()}_table";
     }
 
+    /**
+     * @throws Exception
+     */
     public function getManyToManyName(CrudField $field, int $order, Crud $first, Crud $second): string
     {
         $namePart = $this->orderManyToManyName($first, $second);
@@ -105,7 +108,7 @@ class MigrationGenerator
         $containsTimestampsColumns = false;
         $containsSoftDeleteColumns = false;
 
-        $prevDate = $this->deployment->prev()?->created_at;
+        $prevDate = $this->deployment->prev()?->created_at ?? null;
 
         if ($prevDate) {
             $this->deployment->addNewMessage('Prev deployment date: ' . $prevDate->format('Y-m-d H:i:s') . PHP_EOL);
@@ -124,11 +127,11 @@ class MigrationGenerator
             // TODO: This should be optional/configured in CRUD creations
             // If columns is present in this release we assume that you have enabled it now
             if (in_array($field->key, ['created_at', 'updated_at'])) {
-                $containsTimestampsColumns = $field->created_at < $prevDate;
+                $containsTimestampsColumns = empty($prevDate) || $field->created_at > $prevDate;
                 continue;
             }
             if ($field->key == 'deleted_at') {
-                $containsSoftDeleteColumns = $field->created_at < $prevDate;
+                $containsSoftDeleteColumns = empty($prevDate) || $field->created_at > $prevDate;
                 continue;
             }
 

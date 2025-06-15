@@ -14,12 +14,15 @@ enum CrudFieldTypes: string implements HasLabel
     case PASSWORD = 'password';
     case IMAGE = 'image';
     case TEXTAREA = 'textarea';
+    case MARKDOWN = 'markdown';
     case CHECKBOX = 'checkbox';
+    case INTEGER = 'integer';
     case FLOAT = 'float';
     case EMAIL = 'email';
     case DATE = 'date';
     case MONEY = 'money';
     case FILE = 'file';
+    case JSON = 'json';
 
     // TODO: Add all supported filament fields here :)
 
@@ -34,12 +37,15 @@ enum CrudFieldTypes: string implements HasLabel
             self::PASSWORD => 'Password',
             self::IMAGE => 'Image',
             self::TEXTAREA => 'Textarea',
+            self::MARKDOWN => 'Markdown',
             self::CHECKBOX => 'Checkbox',
+            self::INTEGER => 'Integer',
             self::FLOAT => 'Float',
             self::EMAIL => 'Email',
             self::DATE => 'Date',
             self::MONEY => 'Money',
             self::FILE => 'File',
+            self::JSON => 'JSON',
         };
     }
 }

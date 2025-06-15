@@ -22,11 +22,6 @@ class MigrationLineGenerator
 
     private ?bool $default = null;
 
-    public function __construct(bool $change = false)
-    {
-        $this->change = $change;
-    }
-
     public function toString(): string
     {
         $properties = $this->getMigrationOptionsOrder();
@@ -57,16 +52,16 @@ class MigrationLineGenerator
         return $this;
     }
 
-    public function change(): self
+    public function setChange(bool $change): self
     {
-        $this->change = true;
+        $this->change = $change;
 
         return $this;
     }
 
-    public function nullable(): self
+    public function setNullable(bool $nullable): self
     {
-        $this->nullable = true;
+        $this->nullable = $nullable;
 
         return $this;
     }
@@ -117,6 +112,7 @@ class MigrationLineGenerator
     {
         if ($this->constrained) {
             $output = '->constrained';
+            $nullOn = ($this->nullable ? '->nullOnDelete()' : '');
 
             if ($this->constrainedTable) {
                 $output .= '(\''.$this->constrainedTable.'\'';
@@ -127,10 +123,10 @@ class MigrationLineGenerator
 
                 $output .= ')';
 
-                return $output;
+                return $output.$nullOn;
             }
 
-            return $output.'()';
+            return $output.'()'.$nullOn;
         }
 
         return '';

@@ -31,9 +31,11 @@ class DateTimeField extends BaseField
 
     public function getMigrationLine(bool $change = false): string
     {
-        return (new MigrationLineGenerator($change))
+        return (new MigrationLineGenerator())
             ->setType('datetime')
             ->setKey($this->field->key)
+            ->setChange($change)
+            ->setNullable($this->field->nullable)
             ->toString();
     }
 }

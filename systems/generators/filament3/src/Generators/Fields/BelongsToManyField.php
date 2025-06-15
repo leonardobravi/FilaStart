@@ -54,7 +54,7 @@ class BelongsToManyField extends BaseField
         return $options.parent::resolveFormOptions();
     }
 
-    public function getMigrationLine(): string
+    public function getMigrationLine(bool $change = false): string
     {
         if (! $this->field->crudFieldOptions) {
             throw new Exception("Crud field options not found for field {$this->field->key}");

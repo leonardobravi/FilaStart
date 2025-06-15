@@ -31,6 +31,8 @@ class PasswordField extends BaseField
         return (new MigrationLineGenerator($change))
             ->setType('string')
             ->setKey($this->field->key)
+            ->setChange($change)
+            ->setNullable($this->field->nullable)
             ->toString();
     }
 }

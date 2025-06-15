@@ -56,7 +56,7 @@ class BelongsToField extends BaseField
         return $options.parent::resolveFormOptions();
     }
 
-    public function getMigrationLine(): string
+    public function getMigrationLine(bool $change = false): string
     {
         if (! $this->field->crudFieldOptions) {
             throw new Exception("Crud field options not found for field {$this->field->key}");
@@ -76,6 +76,8 @@ class BelongsToField extends BaseField
         return (new MigrationLineGenerator())
             ->setType('foreignId')
             ->setKey($key)
+            ->setChange($change)
+            ->setNullable($this->field->nullable)
             ->constrained($this->field->crudFieldOptions->crud->model_snake_plural_class_name)
             ->toString();
     }

@@ -4,7 +4,7 @@ namespace Generators\Filament3\Generators\Fields;
 
 use Generators\Laravel11\Generators\MigrationLineGenerator;
 
-class MoneyField extends BaseField
+class IntegerField extends BaseField
 {
     protected string $formComponentClass = 'TextInput';
 
@@ -20,11 +20,20 @@ class MoneyField extends BaseField
         $this->tableKey = $this->field->key;
     }
 
+    protected function resolveFormOptions(): string
+    {
+        $options = PHP_EOL;
+        // TODO: This needs format to be added
+        $options .= '    ->numeric()';
+
+        return $options.parent::resolveFormOptions();
+    }
+
     protected function resolveTableOptions(): string
     {
         $options = PHP_EOL;
         // TODO: This needs format to be added
-        $options .= '    ->money()';
+        $options .= '    ->numeric()';
 
         return $options.parent::resolveTableOptions();
     }
@@ -32,8 +41,9 @@ class MoneyField extends BaseField
     public function getMigrationLine(bool $change = false): string
     {
         return (new MigrationLineGenerator())
-            ->setType('string') // TODO: This might be wrong.
-            ->setKey($this->field->key)->setChange($change)
+            ->setType('integer')
+            ->setKey($this->field->key)
+            ->setChange($change)
             ->setNullable($this->field->nullable)
             ->toString();
     }
