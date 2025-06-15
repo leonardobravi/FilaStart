@@ -41,6 +41,8 @@ class FileReplacements
 
     private ?string $navigationGroup = null;
 
+    private ?string $navigationSort = null;
+
     private ?string $actions = null;
 
     private ?string $icon = null;
@@ -119,6 +121,11 @@ class FileReplacements
         $editPageActions[] = 'Actions\ForceDeleteAction::make(),';
         $editPageActions[] = 'Actions\RestoreAction::make(),';
         $editPageActions = implode(PHP_EOL, $editPageActions);
+        if (!empty($this->crudData->menu_order)) {
+            $navigationSort = $this->indentString('protected static ?int $navigationSort = '.$this->crudData->menu_order.';'.PHP_EOL);
+        } else {
+            $navigationSort = '';
+        }
 
         if ($this->crudData->parent_id && ($this->crudData->parent?->title ?? false)) {
             $navigationGroup = $this->indentString('protected static ?string $navigationGroup = \''.$this->crudData->parent->visual_title.'\';'.PHP_EOL);
@@ -141,6 +148,7 @@ class FileReplacements
         $this->tableActions = $this->indentString($tableActions, 4);
         $this->tableBulkActions = $this->indentString($tableBulkActions, 5);
         $this->tableFilters = $this->indentString('Tables\Filters\TrashedFilter::make(),', 4);
+        $this->navigationSort = $navigationSort;
         $this->navigationGroup = $navigationGroup;
         $this->icon = $icon;
 
@@ -190,6 +198,7 @@ class FileReplacements
             'tableColumns' => $this->indentString($this->getTableColumns(), 4),
             'tableFilters' => $this->tableFilters,
             'navigationGroup' => $this->navigationGroup,
+            'navigationSort' => $this->navigationSort,
             'namespace' => 'App\\Filament\\Resources',
             'resourceClass' => $this->resourceClass,
             'icon' => $this->icon,
