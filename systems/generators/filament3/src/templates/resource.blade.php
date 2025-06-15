@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class {!! $resourceClass !!} extends Resource
 {
     protected static ?string $model = {!! $modelClass !!}::class;{!! $icon !!}
-{!! $navigationSort !!}
 {!! $navigationGroup !!}
     public static function form(Form $form): Form
     {
