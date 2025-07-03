@@ -58,6 +58,11 @@ class Panel extends Model
         return $this->belongsToMany(Module::class);
     }
 
+    public function customTraits(): HasMany
+    {
+        return $this->hasMany(CustomTrait::class);
+    }
+
     public function panelDeployments(): HasMany
     {
         return $this->hasMany(PanelDeployment::class);

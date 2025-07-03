@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Enums\CrudTypes;
+use App\Enums\CustomTraitTypes;
 use App\Enums\HeroIcons;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -16,9 +18,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $is_hidden
  * @property bool $system
  * @property bool $module_crud
+ * @property string $module_slug
+ * @property string $title
+ * @property string $visual_title
  * @property HeroIcons|null $icon
  * @property string $model_class_name
  * @property string $model_snake_plural_class_name
+ * @property null|int $parent_id
+ * @property null|Crud $parent
  */
 class Crud extends Model
 {
@@ -92,6 +99,26 @@ class Crud extends Model
     public function fields(): HasMany
     {
         return $this->hasMany(CrudField::class);
+    }
+
+    public function fieldsByOrder(): HasMany
+    {
+        return $this->fields()->orderBy('order');
+    }
+
+    public function customTraits(): BelongsToMany
+    {
+        return $this->belongsToMany(CustomTrait::class, 'crud_custom_traits');
+    }
+
+    public function customTraitsForModels(): BelongsToMany
+    {
+        return $this->customTraits()->whereIn('type', [CustomTraitTypes::ANY, CustomTraitTypes::MODEL]);
+    }
+
+    public function customTraitsForResources(): BelongsToMany
+    {
+        return $this->customTraits()->whereIn('type', [CustomTraitTypes::ANY, CustomTraitTypes::RESOURCE]);
     }
 
     public function panelFiles(): HasMany

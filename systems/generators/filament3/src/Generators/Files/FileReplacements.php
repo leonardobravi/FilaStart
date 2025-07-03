@@ -2,6 +2,8 @@
 
 namespace Generators\Filament3\Generators\Files;
 
+use App\Models\CrudField;
+use App\Models\CustomTrait;
 use const PHP_EOL;
 
 use App\Models\Crud;
@@ -49,7 +51,7 @@ class FileReplacements
 
     public function __construct(private readonly Crud $crudData)
     {
-        if (! $this->crudData->relationLoaded('fields')) {
+        if (!$this->crudData->relationLoaded('fields')) {
             $this->crudData->load([
                 'fields',
                 'fields.crudFieldOptions',
@@ -65,7 +67,7 @@ class FileReplacements
     {
         $modelName = str($this->crudData->title)->singular();
 
-        $model = (string) str($modelName)
+        $model = (string)str($modelName)
             ->studly()
             ->beforeLast('Resource')
             ->trim('/')
@@ -78,32 +80,32 @@ class FileReplacements
             $model = 'Resource';
         }
 
-        $modelClass = (string) str($model)->afterLast('\\');
-        $pluralModelClass = (string) str($modelClass)->pluralStudly();
+        $modelClass = (string)str($model)->afterLast('\\');
+        $pluralModelClass = (string)str($modelClass)->pluralStudly();
 
-        $this->resourceClass = $modelClass.'Resource';
-        $this->listResourcePageClass = 'List'.$pluralModelClass;
-        $this->createResourcePageClass = 'Create'.$modelClass;
-        $this->editResourcePageClass = 'Edit'.$modelClass;
+        $this->resourceClass = $modelClass . 'Resource';
+        $this->listResourcePageClass = 'List' . $pluralModelClass;
+        $this->createResourcePageClass = 'Create' . $modelClass;
+        $this->editResourcePageClass = 'Edit' . $modelClass;
 
-        $eloquentQuery = PHP_EOL.PHP_EOL.'public static function getEloquentQuery(): Builder';
-        $eloquentQuery .= PHP_EOL.'{';
-        $eloquentQuery .= PHP_EOL.'    return parent::getEloquentQuery()';
-        $eloquentQuery .= PHP_EOL.'        ->withoutGlobalScopes([';
-        $eloquentQuery .= PHP_EOL.'            SoftDeletingScope::class,';
-        $eloquentQuery .= PHP_EOL.'        ]);';
-        $eloquentQuery .= PHP_EOL.'}';
+        $eloquentQuery = PHP_EOL . PHP_EOL . 'public static function getEloquentQuery(): Builder';
+        $eloquentQuery .= PHP_EOL . '{';
+        $eloquentQuery .= PHP_EOL . '    return parent::getEloquentQuery()';
+        $eloquentQuery .= PHP_EOL . '        ->withoutGlobalScopes([';
+        $eloquentQuery .= PHP_EOL . '            SoftDeletingScope::class,';
+        $eloquentQuery .= PHP_EOL . '        ]);';
+        $eloquentQuery .= PHP_EOL . '}';
 
-        $pages = '\'index\' => Pages\\'.$this->listResourcePageClass.'::route(\'/\'),';
-        $pages .= PHP_EOL."'create' => Pages\\".$this->createResourcePageClass."::route('/create'),";
-        $pages .= PHP_EOL."'edit' => Pages\\".$this->editResourcePageClass."::route('/{record}/edit'),";
+        $pages = '\'index\' => Pages\\' . $this->listResourcePageClass . '::route(\'/\'),';
+        $pages .= PHP_EOL . "'create' => Pages\\" . $this->createResourcePageClass . "::route('/create'),";
+        $pages .= PHP_EOL . "'edit' => Pages\\" . $this->editResourcePageClass . "::route('/{record}/edit'),";
 
-        $relations = PHP_EOL.'public static function getRelations(): array';
-        $relations .= PHP_EOL.'{';
-        $relations .= PHP_EOL.'    return [';
-        $relations .= PHP_EOL.'        //';
-        $relations .= PHP_EOL.'    ];';
-        $relations .= PHP_EOL.'}'.PHP_EOL;
+        $relations = PHP_EOL . 'public static function getRelations(): array';
+        $relations .= PHP_EOL . '{';
+        $relations .= PHP_EOL . '    return [';
+        $relations .= PHP_EOL . '        //';
+        $relations .= PHP_EOL . '    ];';
+        $relations .= PHP_EOL . '}' . PHP_EOL;
 
         $tableActions = [];
 
@@ -122,19 +124,19 @@ class FileReplacements
         $editPageActions[] = 'Actions\RestoreAction::make(),';
         $editPageActions = implode(PHP_EOL, $editPageActions);
         if (!empty($this->crudData->menu_order)) {
-            $navigationSort = $this->indentString('protected static ?int $navigationSort = '.$this->crudData->menu_order.';'.PHP_EOL);
+            $navigationSort = $this->indentString('protected static ?int $navigationSort = ' . $this->crudData->menu_order . ';' . PHP_EOL);
         } else {
             $navigationSort = '';
         }
 
         if ($this->crudData->parent_id && ($this->crudData->parent?->title ?? false)) {
-            $navigationGroup = $this->indentString('protected static ?string $navigationGroup = \''.$this->crudData->parent->visual_title.'\';'.PHP_EOL);
+            $navigationGroup = $this->indentString('protected static ?string $navigationGroup = \'' . $this->crudData->parent->visual_title . '\';' . PHP_EOL);
         } else {
             $navigationGroup = '';
         }
 
         if ($this->crudData->icon) {
-            $icon = $this->indentString(PHP_EOL.PHP_EOL.'protected static ?string $navigationIcon = \''.$this->crudData->icon->value.'\';'.PHP_EOL);
+            $icon = $this->indentString(PHP_EOL . PHP_EOL . 'protected static ?string $navigationIcon = \'' . $this->crudData->icon->value . '\';' . PHP_EOL);
         } else {
             $icon = '';
         }
@@ -144,7 +146,7 @@ class FileReplacements
         $this->modelClass = $model === 'Resource' ? 'ResourceModel' : $modelClass;
         $this->pages = $this->indentString($pages, 3);
         $this->relations = $this->indentString($relations);
-        $this->resource = 'App\\Filament\\Resources\\'.$this->resourceClass;
+        $this->resource = 'App\\Filament\\Resources\\' . $this->resourceClass;
         $this->tableActions = $this->indentString($tableActions, 4);
         $this->tableBulkActions = $this->indentString($tableBulkActions, 5);
         $this->tableFilters = $this->indentString('Tables\Filters\TrashedFilter::make(),', 4);
@@ -202,6 +204,8 @@ class FileReplacements
             'namespace' => 'App\\Filament\\Resources',
             'resourceClass' => $this->resourceClass,
             'icon' => $this->icon,
+            'uses' => $this->getResourceUses(),
+            'traits' => $this->getResourceTraits(),
         ];
     }
 
@@ -213,10 +217,10 @@ class FileReplacements
         return [
             'baseResourcePage' => 'Filament\\Resources\\Pages\\CreateRecord',
             'baseResourcePageClass' => 'CreateRecord',
-            'namespace' => 'App\\Filament\\Resources\\'.$this->crudData->model_class_name.'Resource\\Pages',
+            'namespace' => 'App\\Filament\\Resources\\' . $this->crudData->model_class_name . 'Resource\\Pages',
             'resourceClass' => $this->resourceClass,
             'resourcePageClass' => $this->createResourcePageClass,
-            'resource' => 'App\\Filament\\Resources\\'.$this->resourceClass,
+            'resource' => 'App\\Filament\\Resources\\' . $this->resourceClass,
         ];
     }
 
@@ -228,11 +232,11 @@ class FileReplacements
         return [
             'baseResourcePage' => 'Filament\\Resources\\Pages\\EditRecord',
             'baseResourcePageClass' => 'EditRecord',
-            'namespace' => 'App\\Filament\\Resources\\'.$this->crudData->model_class_name.'Resource\\Pages',
+            'namespace' => 'App\\Filament\\Resources\\' . $this->crudData->model_class_name . 'Resource\\Pages',
             'resourceClass' => $this->resourceClass,
             'resourcePageClass' => $this->editResourcePageClass,
             'actions' => $this->actions,
-            'resource' => 'App\\Filament\\Resources\\'.$this->resourceClass,
+            'resource' => 'App\\Filament\\Resources\\' . $this->resourceClass,
         ];
     }
 
@@ -244,10 +248,10 @@ class FileReplacements
         return [
             'baseResourcePage' => 'Filament\\Resources\\Pages\\ListRecords',
             'baseResourcePageClass' => 'ListRecords',
-            'namespace' => 'App\\Filament\\Resources\\'.$this->crudData->model_class_name.'Resource\\Pages',
+            'namespace' => 'App\\Filament\\Resources\\' . $this->crudData->model_class_name . 'Resource\\Pages',
             'resourceClass' => $this->resourceClass,
             'resourcePageClass' => $this->listResourcePageClass,
-            'resource' => 'App\\Filament\\Resources\\'.$this->resourceClass,
+            'resource' => 'App\\Filament\\Resources\\' . $this->resourceClass,
         ];
     }
 
@@ -255,28 +259,63 @@ class FileReplacements
     {
         $formElements = [];
 
-        foreach ($this->crudData->fields as $field) {
-            if (! $field->in_create && ! $field->in_edit) {
+        /** @var CrudField $field */
+        foreach ($this->crudData->fieldsByOrder()->get() as $field) {
+            if (!$field->in_create && !$field->in_edit) {
                 continue;
             }
 
             $formElements[] = RetrieveGeneratorForField::for($field)->formComponent();
         }
 
-        return implode(','.PHP_EOL, $formElements);
+        return implode(',' . PHP_EOL, $formElements);
     }
 
     private function getTableColumns(): string
     {
         $tableColumns = [];
 
-        foreach ($this->crudData->fields as $field) {
-            if (! $field->in_list) {
+        /** @var CrudField $field */
+        foreach ($this->crudData->fieldsByOrder()->get() as $field) {
+            if (!$field->in_list) {
                 continue;
             }
             $tableColumns[] = RetrieveGeneratorForField::for($field)->tableColumn();
         }
 
-        return implode(','.PHP_EOL, $tableColumns);
+        return implode(',' . PHP_EOL, $tableColumns);
+    }
+
+    private function getResourceUses(): string
+    {
+        $customTraits = $this->crudData->customTraitsForResources();
+
+        if ($customTraits->count() <= 0) {
+            return '';
+        }
+
+        $uses = [];
+        /** @var CustomTrait $customTrait */
+        foreach ($customTraits->get() as $customTrait) {
+            $uses[] = "use $customTrait->visual_title;";
+        }
+
+        return implode(PHP_EOL, $uses);
+    }
+
+    private function getResourceTraits(): string
+    {
+        $customTraits = $this->crudData->customTraitsForResources();
+
+        if ($customTraits->count() <= 0) {
+            return '';
+        }
+
+        $traits = [
+            PHP_EOL . '    // Custom Traits',
+            '    use ' . implode(', ', $customTraits->get()->pluck('class_name')->toArray()) . ';',
+        ];
+
+        return implode(PHP_EOL, $traits);
     }
 }

@@ -5,6 +5,7 @@ namespace Generators\Laravel11\Generators;
 use App\Enums\CrudFieldTypes;
 use App\Models\Crud;
 use App\Models\CrudField;
+use App\Models\CustomTrait;
 use Generators\Filament3\Generators\Fields\RetrieveGeneratorForField;
 
 class ModelGenerator
@@ -16,7 +17,7 @@ class ModelGenerator
 
     public function __construct(public Crud $crud)
     {
-        if (! $this->crud->relationLoaded('fields')) {
+        if (!$this->crud->relationLoaded('fields')) {
             $this->crud->load(['fields', 'fields.crudFieldOptions', 'fields.crudFieldOptions.crud']);
         }
     }
@@ -34,7 +35,7 @@ class ModelGenerator
             'uses' => $this->getModelUses(),
         ])->render();
 
-        return '<?php'.PHP_EOL.PHP_EOL.$output;
+        return '<?php' . PHP_EOL . PHP_EOL . $output;
     }
 
     private function getModelUses(): string
@@ -42,11 +43,21 @@ class ModelGenerator
         $uses = [];
 
         if ($this->crud->module_slug === 'base-module' && $this->crud->title === 'User') {
+            $uses[] = PHP_EOL . '    // Standard Classes, Interfaces and Traits';
             $uses[] = 'use Filament\Models\Contracts\FilamentUser;';
             $uses[] = 'use Illuminate\Auth\MustVerifyEmail;';
             $uses[] = 'use Illuminate\Database\Eloquent\Factories\HasFactory;';
             $uses[] = 'use Illuminate\Foundation\Auth\User as Authenticatable;';
             $uses[] = 'use Illuminate\Notifications\Notifiable;';
+        }
+
+        $customTraits = $this->crud->customTraitsForModels();
+
+        if ($customTraits->count() > 0) {
+            /** @var CustomTrait $customTrait */
+            foreach ($customTraits->get() as $customTrait) {
+                $uses[] = "use $customTrait->visual_title;";
+            }
         }
 
         $uses += $this->uses;
@@ -70,18 +81,32 @@ class ModelGenerator
 
     private function getModelTraits(): string
     {
+        $traits = [];
+
         if ($this->crud->module_slug === 'base-module' && $this->crud->title === 'User') {
-            return PHP_EOL.'    use HasFactory, MustVerifyEmail, Notifiable;';
+            $traits[] = PHP_EOL . '    // Standard Traits';
+            $traits[] = '    use HasFactory, MustVerifyEmail, Notifiable;';
         }
 
-        return '';
+        $customTraits = $this->crud->customTraitsForModels();
+
+        if ($customTraits->count() > 0) {
+            $traits[] = PHP_EOL . '    // Custom Traits';
+            $traits[] = '    use '
+                . implode(
+                    ', ',
+                    $customTraits->get()->pluck('class_name')->toArray()
+                ) . ';';
+        }
+
+        return implode(PHP_EOL, $traits);
     }
 
     private function generateFillable(): string
     {
         return $this->crud->fields
             ->filter(function (CrudField $field) {
-                return ! in_array($field->key, [
+                return !in_array($field->key, [
                     'id',
                     'created_at',
                     'updated_at',
@@ -89,12 +114,12 @@ class ModelGenerator
                 ]);
             })
             ->map(function (CrudField $field) {
-                if (($field->type === CrudFieldTypes::BELONGS_TO) && ! str($field->key)->contains('_id')) {
+                if (($field->type === CrudFieldTypes::BELONGS_TO) && !str($field->key)->contains('_id')) {
                     return "'{$field->key}_id'";
                 }
 
                 return "'$field->key'";
-            })->implode(', '.PHP_EOL.'        ');
+            })->implode(', ' . PHP_EOL . '        ');
     }
 
     private function generateRelationships(): string
@@ -114,7 +139,7 @@ class ModelGenerator
             }
         }
 
-        return implode(PHP_EOL.PHP_EOL, $relationships).PHP_EOL;
+        return implode(PHP_EOL . PHP_EOL, $relationships) . PHP_EOL;
     }
 
     private function getModelCasts(): string
@@ -133,6 +158,6 @@ class ModelGenerator
     }';
         }
 
-        return implode(PHP_EOL.PHP_EOL, $methods);
+        return implode(PHP_EOL . PHP_EOL, $methods);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\PanelDeploymentResource\Pages;
 use App\Enums\HeroIcons;
 use App\Filament\Resources\PanelDeploymentResource;
 use App\Jobs\Generator\GeneratePanelCodeJob;
+use App\Models\Crud;
 use App\Models\CrudField;
 use App\Models\Panel;
 use App\Models\PanelDeployment;
@@ -75,7 +76,10 @@ class ListPanelDeployment extends ListRecords
                     $maxDate = PanelDeployment::max('created_at');
                     return
                         !empty(PanelDeployment::where('status', 'pending')->first()) ||
-                        (!empty($maxDate) && empty(CrudField::where('updated_at', '>=', $maxDate)->first()));
+                        (!empty($maxDate) &&
+                            empty(CrudField::where('updated_at', '>=', $maxDate)->first()) &&
+                            empty(Crud::where('updated_at', '>=', $maxDate)->first())
+                        );
                 })
         ];
     }

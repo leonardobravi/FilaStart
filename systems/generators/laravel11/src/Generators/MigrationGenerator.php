@@ -112,7 +112,7 @@ class MigrationGenerator
 
         if ($prevDate) {
             $this->deployment->addNewMessage('Prev deployment date: ' . $prevDate->format('Y-m-d H:i:s') . PHP_EOL);
-            $fieldsToUpdate = $this->crud->fields()->where('updated_at', '>=', $prevDate)->get();
+            $fieldsToUpdate = $this->crud->fieldsByOrder()->where('updated_at', '>=', $prevDate)->get();
         } else {
             $this->deployment->addNewMessage('First deployment' . PHP_EOL);
             $fieldsToUpdate = $this->crud->fields;

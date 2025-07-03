@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Enums\CrudTypes;
 use App\Enums\HeroIcons;
 use App\Filament\Resources\CrudResource\Pages;
+use App\Filament\Resources\CrudResource\RelationManagers\CustomTraitsRelationManager;
 use App\Filament\Resources\CrudResource\RelationManagers\FieldsRelationManager;
 use App\Models\Crud;
 use App\Models\Panel;
@@ -144,6 +145,7 @@ class CrudResource extends Resource
     {
         return [
             FieldsRelationManager::class,
+            CustomTraitsRelationManager::class,
         ];
     }
 

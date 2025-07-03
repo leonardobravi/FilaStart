@@ -35,7 +35,7 @@ class CreateManyToManyMigrationJob implements ShouldQueue
 
         // Check if there should be many to many migration created
 
-        $manyToMayFields = $this->crudData->fields()->whereIn('type', [
+        $manyToMayFields = $this->crudData->fieldsByOrder()->whereIn('type', [
             CrudFieldTypes::BELONGS_TO_MANY,
         ]);
 
